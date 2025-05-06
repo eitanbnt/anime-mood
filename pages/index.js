@@ -28,7 +28,9 @@ export default function Home() {
             {m.emoji} {m.label}
           </button>
         ))}
+        <a href="/history" className="text-blue-500 underline mt-8 inline-block">Voir l’historique des recommandations</a>
       </div>
     </div>
   );
 }
+
