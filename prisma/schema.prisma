@@ -8,11 +8,13 @@ datasource db {
 }
 
 model Recommendation {
-  id        Int      @id @default(autoincrement())
-  animeId   Int
-  title     String
-  imageUrl  String
-  mood      String
-  note      String?   // <- Ajout ici
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  animeId    Int
+  title      String
+  imageUrl   String
+  mood       String
+  userId     String?
+  note       String?
+  isFavorite Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }

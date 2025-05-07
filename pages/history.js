@@ -97,6 +97,21 @@ export default function History({ recommendations }) {
                                         >
                                             Supprimer
                                         </button>
+                                        <button
+                                            onClick={async () => {
+                                                await fetch('/api/favorite', {
+                                                    method: 'PATCH',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({ id: rec.id, isFavorite: !rec.isFavorite }),
+                                                })
+
+                                                location.reload() // simple reload pour MAJ
+                                            }}
+                                            className={`text-sm ${rec.isFavorite ? "text-orange-600" : "text-green-600"} underline mr-4`}
+                                        >
+                                            {rec.isFavorite ? "💔 Retirer des favoris" : "💾 Ajouter aux favoris"}
+                                        </button>
+
                                     </div>
                                 </div>
                             </div>

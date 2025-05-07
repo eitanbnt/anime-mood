@@ -33,6 +33,7 @@ export default function Home() {
       <a href="/history" className="mt-10 text-blue-600 underline text-sm">
         Voir l’historique des recommandations →
       </a>
+      <a href="/favorites" className="mt-4 text-sm text-blue-500 underline">Voir mes favoris →</a>
     </div>
   )
 }

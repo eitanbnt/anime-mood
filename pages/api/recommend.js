@@ -12,11 +12,21 @@ const moodToQuery = {
 }
 
 export default async function handler(req, res) {
-  const { mood } = req.query
 
-  if (!mood || typeof mood !== "string") {
-    return res.status(400).json({ error: "Aucune humeur fournie" })
-  }
+  const { mood, userId } = req.query
+
+if (!mood || typeof mood !== "string") {
+  return res.status(400).json({ error: "Aucune humeur fournie" })
+}
+
+if (!userId || typeof userId !== "string") {
+  return res.status(400).json({ error: "Utilisateur inconnu" })
+}
+  // const { mood } = req.query
+
+  // if (!mood || typeof mood !== "string") {
+  //   return res.status(400).json({ error: "Aucune humeur fournie" })
+  // }
 
   const query = moodToQuery[mood] || "drama"
 
@@ -36,23 +46,31 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Aucun anime trouvé" })
     }
 
-    const randomAnime = animeList[Math.floor(Math.random() * animeList.length)]
+    const selected = animeList.sort(() => 0.5 - Math.random()).slice(0, 3)
 
-    await prisma.recommendation.create({
-      data: {
-        animeId: randomAnime.mal_id,
-        title: randomAnime.title,
-        imageUrl: randomAnime.images.jpg.image_url,
-        mood: mood,
-      }
-    })
+    await Promise.all(
+      selected.map(anime =>
+        prisma.recommendation.create({
+          data: {
+            animeId: anime.mal_id,
+            title: anime.title,
+            imageUrl: anime.images.jpg.image_url,
+            mood: mood,
+            userId: userId, // 👈
+          }
+        })
+      )
+    )
+    
 
-    res.status(200).json({
-      title: randomAnime.title,
-      imageUrl: randomAnime.images.jpg.image_url,
-      synopsis: randomAnime.synopsis,
-      malId: randomAnime.mal_id,
-    })
+    res.status(200).json(
+      selected.map(anime => ({
+        title: anime.title,
+        imageUrl: anime.images.jpg.image_url,
+        synopsis: anime.synopsis,
+        malId: anime.mal_id,
+      }))
+    )
 
   } catch (error) {
     console.error("Erreur API ou DB :", error)
