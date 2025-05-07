@@ -1,22 +1,20 @@
 import { PrismaClient } from "@prisma/client"
 import { useEffect, useState } from "react"
 
-const prisma = new PrismaClient()
-
-export async function getServerSideProps(context) {
-    // Pas de filtrage ici car le userId est dans le navigateur
-    const recommendations = await prisma.recommendation.findMany({
+export async function getServerSideProps() {
+    const prisma = new PrismaClient()
+    const all = await prisma.recommendation.findMany({
         where: { isFavorite: true },
         orderBy: { createdAt: 'desc' }
     })
 
     return {
         props: {
-            allFavorites: recommendations.map(r => ({
+            allFavorites: all.map((r) => ({
                 ...r,
-                createdAt: new Date(r.createdAt).toLocaleString()
-            }))
-        }
+                createdAt: new Date(r.createdAt).toLocaleString(),
+            })),
+        },
     }
 }
 
@@ -26,7 +24,8 @@ export default function Favorites({ allFavorites }) {
     useEffect(() => {
         const userId = localStorage.getItem("animeUserId")
         if (!userId) return
-        const filtered = allFavorites.filter(f => f.userId === userId)
+
+        const filtered = allFavorites.filter((fav) => fav.userId === userId)
         setUserFavorites(filtered)
     }, [allFavorites])
 
@@ -42,7 +41,7 @@ export default function Favorites({ allFavorites }) {
                 <p>Aucun favori pour l’instant 💤</p>
             ) : (
                 <div className="grid md:grid-cols-3 gap-6">
-                    {userFavorites.map(fav => (
+                    {userFavorites.map((fav) => (
                         <div key={fav.id} className="bg-white rounded-xl p-4 shadow">
                             <h2 className="font-semibold text-lg mb-2">{fav.title}</h2>
                             <img src={fav.imageUrl} alt={fav.title} className="rounded mb-2" />
