@@ -22,11 +22,7 @@ if (!mood || typeof mood !== "string") {
 if (!userId || typeof userId !== "string") {
   return res.status(400).json({ error: "Utilisateur inconnu" })
 }
-  // const { mood } = req.query
 
-  // if (!mood || typeof mood !== "string") {
-  //   return res.status(400).json({ error: "Aucune humeur fournie" })
-  // }
 
   const query = moodToQuery[mood] || "drama"
 
@@ -49,17 +45,26 @@ if (!userId || typeof userId !== "string") {
     const selected = animeList.sort(() => 0.5 - Math.random()).slice(0, 3)
 
     await Promise.all(
-      selected.map(anime =>
-        prisma.recommendation.create({
-          data: {
+      selected.map(async (anime) => {
+        const exists = await prisma.recommendation.findFirst({
+          where: {
             animeId: anime.mal_id,
-            title: anime.title,
-            imageUrl: anime.images.jpg.image_url,
-            mood: mood,
-            userId: userId, // 👈
-          }
+            userId: userId,
+          },
         })
-      )
+    
+        if (!exists) {
+          await prisma.recommendation.create({
+            data: {
+              animeId: anime.mal_id,
+              title: anime.title,
+              imageUrl: anime.images.jpg.image_url,
+              mood: mood,
+              userId: userId,
+            }
+          })
+        }
+      })
     )
     
 
