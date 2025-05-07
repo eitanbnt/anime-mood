@@ -6,31 +6,33 @@ const moods = [
   { label: "Nostalgique", emoji: "😔" },
   { label: "Énergique", emoji: "💪" },
   { label: "Amoureux", emoji: "😍" },
-];
+]
 
 export default function Home() {
-  const router = useRouter();
+  const router = useRouter()
 
   const handleMoodClick = (mood) => {
-    router.push('/recommendation?mood=' + mood);
-  };
+    router.push('/recommendation?mood=' + mood)
+  }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Quel est ton mood aujourd’hui ?</h1>
-      <div className="flex gap-4 flex-wrap">
+    <div className="min-h-screen flex flex-col justify-center items-center px-4 bg-gradient-to-br from-purple-50 to-blue-50">
+      <h1 className="text-3xl font-bold mb-6 text-center">Quel est ton mood aujourd’hui ?</h1>
+      <div className="flex gap-4 flex-wrap justify-center">
         {moods.map((m) => (
           <button
             key={m.label}
             onClick={() => handleMoodClick(m.label)}
-            className="text-3xl p-4 border rounded-xl hover:bg-gray-100"
+            className="text-2xl px-6 py-3 bg-white shadow rounded-xl hover:bg-gray-100 transition"
           >
             {m.emoji} {m.label}
           </button>
         ))}
-        <a href="/history" className="text-blue-500 underline mt-8 inline-block">Voir l’historique des recommandations</a>
       </div>
-    </div>
-  );
-}
 
+      <a href="/history" className="mt-10 text-blue-600 underline text-sm">
+        Voir l’historique des recommandations →
+      </a>
+    </div>
+  )
+}
