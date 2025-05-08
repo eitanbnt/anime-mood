@@ -43,28 +43,29 @@ function TranslateSynopsis({ original }) {
   )
 }
 
-
 export default function RecommendationPage() {
   const router = useRouter()
   const { mood } = router.query
   const [animes, setAnimes] = useState([])
   const [loading, setLoading] = useState(true)
+  const [ready, setReady] = useState(false) // ✅ pour stopper le rendu si pas loggé
 
+  useEffect(() => {
+    const username = localStorage.getItem("animeUsername")
+    if (!username) {
+      router.replace("/login")
+    } else {
+      setReady(true) // autorise le rendu
+    }
+  }, [])
 
   const fetchRecommendations = async () => {
     setLoading(true)
-  
-    let userId = localStorage.getItem('animeUserId')
-    if (!userId) {
-      userId = crypto.randomUUID()
-      localStorage.setItem('animeUserId', userId)
-    }
-  
+    const userId = localStorage.getItem("animeUsername")
     try {
-      const res = await fetch(`/api/recommend?mood=${mood}&userId=${userId}`)
+      const res = await fetch(`/api/recommend?mood=${encodeURIComponent(mood)}&userId=${userId}`)
       const data = await res.json()
-
-      setAnimes(data) // 👈 remplacer l’ancien setAnimes(data)
+      setAnimes(data)
     } catch (err) {
       console.error('Erreur de chargement :', err)
     } finally {
@@ -73,9 +74,12 @@ export default function RecommendationPage() {
   }
 
   useEffect(() => {
-    if (mood) fetchRecommendations()
-  }, [mood])
+    if (mood && ready) {
+      fetchRecommendations()
+    }
+  }, [mood, ready])
 
+  if (!ready) return null
   if (loading) return <div className="p-8">Chargement...</div>
   if (!animes.length) return <div className="p-8">Aucun anime trouvé 😢</div>
 
@@ -101,7 +105,6 @@ export default function RecommendationPage() {
           <div key={idx} className="bg-white p-4 rounded-xl shadow">
             <h2 className="text-lg font-semibold mb-2">{anime.title}</h2>
             <img src={anime.imageUrl} alt={anime.title} className="rounded mb-2" />
-            {/* <p className="text-sm text-gray-700">{anime.synopsis}</p> */}
             <TranslateSynopsis original={anime.synopsis} />
           </div>
         ))}

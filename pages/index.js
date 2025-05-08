@@ -12,11 +12,12 @@ export default function Home() {
   const router = useRouter()
 
   const handleMoodClick = (mood) => {
-    router.push('/recommendation?mood=' + mood)
+    router.replace('/recommendation?mood=' + mood)
   }
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center px-4 bg-gradient-to-br from-purple-50 to-blue-50">
+      <a href="/profile" className="text-sm underline text-gray-600 mt-4">👤 Mon profil</a>
       <h1 className="text-3xl font-bold mb-6 text-center">Quel est ton mood aujourd’hui ?</h1>
       <div className="flex gap-4 flex-wrap justify-center">
         {moods.map((m) => (

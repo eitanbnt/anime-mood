@@ -22,7 +22,11 @@ export default function Favorites({ allFavorites }) {
     const [userFavorites, setUserFavorites] = useState([])
 
     useEffect(() => {
-        const userId = localStorage.getItem("animeUserId")
+        const userId = localStorage.getItem("animeUsername")
+        if (!userId) {
+            userId = crypto.randomUUID()
+            localStorage.setItem("animeUserId", userId)
+        }
         if (!userId) return
 
         const filtered = allFavorites.filter((fav) => fav.userId === userId)
