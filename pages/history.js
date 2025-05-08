@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useRouter } from 'next/router'
 import { PrismaClient } from "@prisma/client"
 
 export async function getServerSideProps() {
@@ -26,18 +27,20 @@ const moodStyle = {
 }
 
 export default function History({ recommendations }) {
-    const [username, setUsername] = useState("")
+    const router = useRouter(); // Assurez-vous que router est défini ici
+    const [username, setUsername] = useState("");
+
     useEffect(() => {
         const check = () => {
-            const saved = localStorage.getItem("animeUsername")
+            const saved = localStorage.getItem("animeUsername");
             if (!saved) {
-                router.push("/login")
+                router.push("/login");
             } else {
-                setUsername(saved)
+                setUsername(saved);
             }
-        }
-        check()
-    }, [router])
+        };
+        check();
+    }, [router]);
     const [search, setSearch] = useState("")
 
     const filtered = recommendations.filter((rec) =>

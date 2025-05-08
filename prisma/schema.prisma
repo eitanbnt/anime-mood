@@ -28,3 +28,12 @@ model AnimeCache {
   synopsis  String?
   createdAt DateTime @default(now())
 }
+
+model AnimeSeen {
+  id        Int      @id @default(autoincrement())
+  animeId   Int
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@unique([animeId, userId]) // un anime ne peut être vu qu’une fois par user
+}

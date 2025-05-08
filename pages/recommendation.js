@@ -8,15 +8,15 @@ function TranslateSynopsis({ original }) {
   const handleTranslate = async () => {
 
     useEffect(() => {
-        const check = () => {
-            const saved = localStorage.getItem("animeUsername")
-            if (!saved) {
-                router.push("/login")
-            } else {
-                setUsername(saved)
-            }
+      const check = () => {
+        const saved = localStorage.getItem("animeUsername")
+        if (!saved) {
+          router.push("/login")
+        } else {
+          setUsername(saved)
         }
-        check()
+      }
+      check()
     }, [router])
 
     setLoading(true)
@@ -119,6 +119,27 @@ export default function RecommendationPage() {
             <h2 className="text-lg font-semibold mb-2">{anime.title}</h2>
             <img src={anime.imageUrl} alt={anime.title} className="rounded mb-2" />
             <TranslateSynopsis original={anime.synopsis} />
+            <button
+              onClick={async () => {
+                const userId = localStorage.getItem("animeUsername")
+                const animeId = anime.animeId || anime.malId
+                if (!animeId || !userId) return alert("animeId ou userId manquant")
+
+                const res = await fetch("/api/seen", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ animeId, userId })
+                })
+
+                const result = await res.json()
+                console.log("✅ Réponse API :", result)
+                alert("Marqué comme vu")
+              }}
+            >
+              ✅ Déjà vu
+            </button>
+
+
           </div>
         ))}
       </div>

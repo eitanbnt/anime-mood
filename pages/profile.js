@@ -34,6 +34,9 @@ export default function Profile() {
             <a href="/" className="text-blue-500 underline">← Retour à l’accueil</a>
             <h1 className="text-2xl font-bold mt-4 mb-4">👤 Mon profil</h1>
 
+            <a href="/admin" className="mt-4 text-sm text-blue-500 underline">Page Admin</a><br></br>
+            <a href="/seen" className="mt-4 text-sm text-blue-500 underline">Déjà vu</a>
+
             <label className="block text-sm font-medium mb-2">Pseudo</label>
             <input
                 type="text"
