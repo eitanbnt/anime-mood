@@ -21,9 +21,14 @@ export async function getServerSideProps() {
 const moodStyle = {
     Heureux: { color: "bg-green-100", emoji: "😄" },
     Triste: { color: "bg-blue-100", emoji: "😢" },
-    Nostalgique: { color: "bg-purple-100", emoji: "😔" },
-    Énergique: { color: "bg-yellow-100", emoji: "💪" },
-    Amoureux: { color: "bg-pink-100", emoji: "😍" },
+    Nostalgique: { color: "bg-purple-100", emoji: "🕰️" },
+    Énergique: { color: "bg-red-100", emoji: "💥" },
+    Amoureux: { color: "bg-pink-100", emoji: "❤️" },
+    Calme: { color: "bg-gray-100", emoji: "😌" },
+    "Mind-blowing": { color: "bg-indigo-100", emoji: "🤯" },
+    "À pleurer": { color: "bg-blue-200", emoji: "😭" },
+    Délirant: { color: "bg-yellow-100", emoji: "🤪" },
+    "Feel-good": { color: "bg-orange-100", emoji: "☀️" }
 }
 
 export default function History({ recommendations }) {

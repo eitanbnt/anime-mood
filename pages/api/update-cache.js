@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
     let all = []
 
-    for (let page = 1; page <= 20; page++) {
+    for (let page = 1; page <= 500; page++) {
         try {
             const res = await axios.get("https://api.jikan.moe/v4/anime", {
                 params: {
@@ -24,13 +24,14 @@ export default async function handler(req, res) {
             const list = res.data.data.map((a) => ({
                 animeId: a.mal_id,
                 title: a.title,
+                titleEnglish: a.titleEnglish,
                 imageUrl: a.images.jpg.image_url,
                 synopsis: a.synopsis
             }))
 
             all.push(...list)
 
-            await new Promise((r) => setTimeout(r, 1100))
+            await new Promise((r) => setTimeout(r, 2100))
         } catch (err) {
             console.error("Erreur à la page", page, err.message)
             break

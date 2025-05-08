@@ -11,6 +11,7 @@ model Recommendation {
   id         Int      @id @default(autoincrement())
   animeId    Int
   title      String
+  titleEnglish String?
   imageUrl   String
   mood       String
   synopsis   String? 
@@ -24,6 +25,7 @@ model AnimeCache {
   id        Int      @id @default(autoincrement())
   animeId   Int      @unique
   title     String
+  titleEnglish String?
   imageUrl  String
   synopsis  String?
   createdAt DateTime @default(now())

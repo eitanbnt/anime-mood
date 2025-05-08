@@ -6,20 +6,6 @@ export default async function handler(req, res) {
   const { mood, userId } = req.query
   const cleanMood = decodeURIComponent(mood)
 
-  const moodGenreMap = {
-    Heureux: ["Slice of Life", "Comédie", "Romance"],
-    Triste: ["Drame", "Psychologique"],
-    Nostalgique: ["Drame", "Slice of Life"],
-    Énergique: ["Action", "Sport", "Shounen"],
-    Amoureux: ["Romance", "École", "Shoujo"],
-    Calme: ["Slice of Life", "Surnaturel"],
-    "ind-blowing": ["Mystère", "Psychologique", "Sci-Fi"],
-    "À pleurer": ["Drame", "Romance", "Tranche de vie"],
-    Délirant: ["Comédie", "Parodie"],
-    "Feel-good": ["Comédie", "Slice of Life"]
-  }
-
-
   if (!cleanMood || !userId) {
     return res.status(400).json({ error: "Paramètres manquants" })
   }
@@ -49,6 +35,7 @@ export default async function handler(req, res) {
           data: {
             animeId: anime.animeId,
             title: anime.title,
+            titleEnglish: anime.titleEnglish || anime.title,
             imageUrl: anime.imageUrl,
             synopsis: anime.synopsis,
             mood: cleanMood,
