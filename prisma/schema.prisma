@@ -13,8 +13,18 @@ model Recommendation {
   title      String
   imageUrl   String
   mood       String
+  synopsis   String? 
   userId     String?
   note       String?
   isFavorite Boolean  @default(false)
   createdAt  DateTime @default(now())
+}
+
+model AnimeCache {
+  id        Int      @id @default(autoincrement())
+  animeId   Int      @unique
+  title     String
+  imageUrl  String
+  synopsis  String?
+  createdAt DateTime @default(now())
 }

@@ -1,59 +1,53 @@
 import { PrismaClient } from "@prisma/client"
-import animeList from "../../data/animeCache.json" // adapter le chemin si besoin
 
 const prisma = new PrismaClient()
 
 export default async function handler(req, res) {
   const { mood, userId } = req.query
+  const cleanMood = decodeURIComponent(mood)
 
-  if (!mood || !userId) {
+
+  if (!cleanMood || !userId) {
     return res.status(400).json({ error: "Paramètres manquants" })
   }
 
   try {
-    // ❌ Récupère les animes déjà vus
-    const existing = await prisma.recommendation.findMany({
+    // 🧠 Lire le cache depuis la base
+    const animeList = await prisma.animeCache.findMany()
+
+    // ❌ Récupérer les animes déjà vus
+    const seen = await prisma.recommendation.findMany({
       where: { userId },
-      select: { animeId: true }
+      select: { animeId: true },
     })
 
-    const seenIds = new Set(existing.map(r => r.animeId))
-
-    // 🧠 Filtrer les animes non vus
-    const unseen = animeList.filter(anime => !seenIds.has(anime.mal_id))
+    const seenIds = new Set(seen.map((r) => r.animeId))
+    const unseen = animeList.filter((a) => !seenIds.has(a.animeId))
 
     if (unseen.length === 0) {
       return res.status(200).json([])
     }
 
-    // 🎯 Choisir 3 aléatoires
     const selected = unseen.sort(() => 0.5 - Math.random()).slice(0, 3)
 
-    // 💾 Enregistrer en BDD
     await Promise.all(
-      selected.map(anime =>
+      selected.map((anime) =>
         prisma.recommendation.create({
           data: {
-            animeId: anime.mal_id,
+            animeId: anime.animeId,
             title: anime.title,
-            imageUrl: anime.images.jpg.image_url,
-            mood,
-            userId
-          }
+            imageUrl: anime.imageUrl,
+            synopsis: anime.synopsis,
+            mood: cleanMood,
+            userId,
+          },
         })
       )
     )
 
-    res.status(200).json(
-      selected.map(anime => ({
-        title: anime.title,
-        imageUrl: anime.images.jpg.image_url,
-        synopsis: anime.synopsis,
-        malId: anime.mal_id
-      }))
-    )
+    res.status(200).json(selected)
   } catch (error) {
-    console.error("Erreur recommandation cache:", error)
+    console.error("Erreur recommandation :", error)
     res.status(500).json({ error: "Erreur serveur" })
   }
 }

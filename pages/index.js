@@ -34,6 +34,7 @@ export default function Home() {
         Voir l’historique des recommandations →
       </a>
       <a href="/favorites" className="mt-4 text-sm text-blue-500 underline">Voir mes favoris →</a>
+      <a href="/admin" className="mt-4 text-sm text-blue-500 underline">Page Admin</a>
     </div>
   )
 }
