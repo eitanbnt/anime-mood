@@ -25,7 +25,18 @@ const questions = [
             { label: "❤️ Touche le cœur", moods: ["Amoureux", "Nostalgique"] },
             { label: "😭 Fait pleurer", moods: ["Triste"] }
         ]
+    },
+    {
+        text: "🎬 Quel genre d’émotion tu veux vivre ?",
+        options: [
+            { label: "💥 Je veux de l'action", moods: ["Énergique"] },
+            { label: "😢 Je veux pleurer", moods: ["Triste", "À pleurer"] },
+            { label: "❤️ Je veux ressentir de l’amour", moods: ["Amoureux"] },
+            { label: "🤪 Je veux rigoler", moods: ["Délirant"] },
+            { label: "☀️ Juste un truc qui fait du bien", moods: ["Feel-good"] }
+        ]
     }
+
 ]
 
 export default function QuizPage() {

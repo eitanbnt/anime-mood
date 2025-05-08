@@ -1,13 +1,18 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from "react"
 
-const moods = [
-  { label: "Heureux", emoji: "😄" },
-  { label: "Triste", emoji: "😢" },
-  { label: "Nostalgique", emoji: "😔" },
-  { label: "Énergique", emoji: "💪" },
-  { label: "Amoureux", emoji: "😍" },
-]
+const moods = {
+  Heureux: { color: "bg-green-100", emoji: "😄" },
+  Triste: { color: "bg-blue-100", emoji: "😢" },
+  Nostalgique: { color: "bg-purple-100", emoji: "🕰️" },
+  Énergique: { color: "bg-red-100", emoji: "💥" },
+  Amoureux: { color: "bg-pink-100", emoji: "❤️" },
+  Calme: { color: "bg-gray-100", emoji: "😌" },
+  "Mind-blowing": { color: "bg-indigo-100", emoji: "🤯" },
+  "À pleurer": { color: "bg-blue-200", emoji: "😭" },
+  Délirant: { color: "bg-yellow-100", emoji: "🤪" },
+  "Feel-good": { color: "bg-orange-100", emoji: "☀️" }
+}
 
 export default function Home() {
   const router = useRouter()
@@ -34,16 +39,17 @@ export default function Home() {
       <a href="/profile" className="text-sm underline text-gray-600 mt-4">👤 Mon profil</a>
       <h1 className="text-3xl font-bold mb-6 text-center">Quel est ton mood aujourd’hui ?</h1>
       <div className="flex gap-4 flex-wrap justify-center">
-        {moods.map((m) => (
+        {Object.entries(moods).map(([mood, info]) => (
           <button
-            key={m.label}
-            onClick={() => handleMoodClick(m.label)}
-            className="text-2xl px-6 py-3 bg-white shadow rounded-xl hover:bg-gray-100 transition"
+            key={mood}
+            onClick={() => handleMoodClick(mood)}
+            className={`px-4 py-2 rounded shadow ${info.color} hover:opacity-90 transition`}
           >
-            {m.emoji} {m.label}
+            {info.emoji} {mood}
           </button>
         ))}
       </div>
+
 
       <a href="/history" className="mt-10 text-blue-600 underline text-sm">
         Voir l’historique des recommandations →
