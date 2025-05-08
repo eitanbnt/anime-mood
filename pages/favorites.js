@@ -22,7 +22,7 @@ export default function Favorites({ allFavorites }) {
     const [userFavorites, setUserFavorites] = useState([])
 
     useEffect(() => {
-        const userId = localStorage.getItem("animeUsername")
+        let userId = localStorage.getItem("animeUsername")
         if (!userId) {
             userId = crypto.randomUUID()
             localStorage.setItem("animeUserId", userId)
