@@ -6,6 +6,19 @@ function TranslateSynopsis({ original }) {
   const [loading, setLoading] = useState(false)
 
   const handleTranslate = async () => {
+
+    useEffect(() => {
+        const check = () => {
+            const saved = localStorage.getItem("animeUsername")
+            if (!saved) {
+                router.push("/login")
+            } else {
+                setUsername(saved)
+            }
+        }
+        check()
+    }, [router])
+
     setLoading(true)
     try {
       const res = await fetch("https://translate.argosopentech.com/translate", {

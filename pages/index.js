@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router'
+import { useEffect, useState } from "react"
 
 const moods = [
   { label: "Heureux", emoji: "😄" },
@@ -10,6 +11,19 @@ const moods = [
 
 export default function Home() {
   const router = useRouter()
+  const [username, setUsername] = useState("")
+
+  useEffect(() => {
+    const check = () => {
+      const saved = localStorage.getItem("animeUsername")
+      if (!saved) {
+        router.push("/login")
+      } else {
+        setUsername(saved)
+      }
+    }
+    check()
+  }, [router])
 
   const handleMoodClick = (mood) => {
     router.replace('/recommendation?mood=' + mood)

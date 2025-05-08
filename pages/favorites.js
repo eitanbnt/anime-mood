@@ -19,6 +19,18 @@ export async function getServerSideProps() {
 }
 
 export default function Favorites({ allFavorites }) {
+    const [username, setUsername] = useState("")
+    useEffect(() => {
+        const check = () => {
+            const saved = localStorage.getItem("animeUsername")
+            if (!saved) {
+                router.push("/login")
+            } else {
+                setUsername(saved)
+            }
+        }
+        check()
+    }, [router])
     const [userFavorites, setUserFavorites] = useState([])
 
     useEffect(() => {

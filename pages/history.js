@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { PrismaClient } from "@prisma/client"
 
 export async function getServerSideProps() {
@@ -26,6 +26,18 @@ const moodStyle = {
 }
 
 export default function History({ recommendations }) {
+    const [username, setUsername] = useState("")
+    useEffect(() => {
+        const check = () => {
+            const saved = localStorage.getItem("animeUsername")
+            if (!saved) {
+                router.push("/login")
+            } else {
+                setUsername(saved)
+            }
+        }
+        check()
+    }, [router])
     const [search, setSearch] = useState("")
 
     const filtered = recommendations.filter((rec) =>
