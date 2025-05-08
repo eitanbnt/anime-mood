@@ -4,7 +4,7 @@ import axios from "axios"
 const fetchAllAnime = async () => {
   let all = []
 
-  for (let page = 1; page <= 200; page++) {
+  for (let page = 1; page <= 800; page++) {
     try {
       const res = await axios.get("https://api.jikan.moe/v4/anime", {
         params: {
