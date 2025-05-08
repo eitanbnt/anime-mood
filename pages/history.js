@@ -132,6 +132,25 @@ export default function History({ recommendations }) {
                                             {rec.isFavorite ? "💔 Retirer des favoris" : "💾 Ajouter aux favoris"}
                                         </button>
 
+                                        <button
+                                            onClick={async () => {
+                                                const userId = localStorage.getItem("animeUsername")
+                                                const animeId = rec.animeId || rec.malId
+                                                if (!animeId || !userId) return alert("animeId ou userId manquant")
+
+                                                const res = await fetch("/api/seen", {
+                                                    method: "POST",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    body: JSON.stringify({ animeId, userId })
+                                                })
+
+                                                const result = await res.json()
+                                                console.log("✅ Réponse API :", result)
+                                                alert("Marqué comme vu")
+                                            }}
+                                        >
+                                            ✅ Déjà vu
+                                        </button>
                                     </div>
                                 </div>
                             </div>

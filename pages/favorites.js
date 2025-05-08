@@ -66,6 +66,25 @@ export default function Favorites({ allFavorites }) {
                             <img src={fav.imageUrl} alt={fav.title} className="rounded mb-2" />
                             <p className="text-sm text-gray-600 mb-2">Humeur : {fav.mood}</p>
                             <p className="text-sm text-gray-400">Ajouté le : {fav.createdAt}</p>
+                            <button
+                                onClick={async () => {
+                                    const userId = localStorage.getItem("animeUsername")
+                                    const animeId = fav.animeId || fav.malId
+                                    if (!animeId || !userId) return alert("animeId ou userId manquant")
+
+                                    const res = await fetch("/api/seen", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ animeId, userId })
+                                    })
+
+                                    const result = await res.json()
+                                    console.log("✅ Réponse API :", result)
+                                    alert("Marqué comme vu")
+                                }}
+                            >
+                                ✅ Déjà vu
+                            </button>
                         </div>
                     ))}
                 </div>
