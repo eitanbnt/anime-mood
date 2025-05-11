@@ -3,111 +3,73 @@ import { useRouter } from "next/router"
 
 const questions = [
     {
-        text: "🌤 Quelle météo te donne le plus envie de regarder un anime ?",
-        options: [
-            { label: "☀️ Soleil", moods: ["Énergique", "Heureux"] },
-            { label: "🌧 Pluie", moods: ["Triste", "Nostalgique"] },
-            { label: "❄️ Neige", moods: ["Calme", "Nostalgique"] }
-        ]
+        question: "Quel genre de fin préfères-tu ?",
+        options: {
+            "Heureux": "😄 Heureuse",
+            "Triste": "😢 Triste mais marquante",
+            "Mind-blowing": "🤯 Inattendue",
+        },
     },
     {
-        text: "🧠 Comment tu te sens en ce moment ?",
-        options: [
-            { label: "😄 Souriant", moods: ["Heureux"] },
-            { label: "💤 Fatigué", moods: ["Calme", "Nostalgique"] },
-            { label: "😢 Sensible", moods: ["Triste"] }
-        ]
+        question: "Quel rythme d’anime tu préfères ?",
+        options: {
+            "Calme": "😌 Lent et contemplatif",
+            "Énergique": "💥 Rapide et intense",
+            "Feel-good": "☀️ Positif et léger",
+        },
     },
     {
-        text: "🎬 Tu veux voir un anime qui...",
-        options: [
-            { label: "💥 Bouge dans tous les sens", moods: ["Énergique"] },
-            { label: "❤️ Touche le cœur", moods: ["Amoureux", "Nostalgique"] },
-            { label: "😭 Fait pleurer", moods: ["Triste"] }
-        ]
+        question: "Tu veux ressentir quoi après le visionnage ?",
+        options: {
+            "À pleurer": "😭 Émotions fortes",
+            "Délirant": "🤪 Délire total",
+            "Amoureux": "❤️ Un peu d’amour",
+        },
     },
-    {
-        text: "🎬 Quel genre d’émotion tu veux vivre ?",
-        options: [
-            { label: "💥 Je veux de l'action", moods: ["Énergique"] },
-            { label: "😢 Je veux pleurer", moods: ["Triste", "À pleurer"] },
-            { label: "❤️ Je veux ressentir de l’amour", moods: ["Amoureux"] },
-            { label: "🤪 Je veux rigoler", moods: ["Délirant"] },
-            { label: "☀️ Juste un truc qui fait du bien", moods: ["Feel-good"] }
-        ]
-    }
-
 ]
 
 export default function QuizPage() {
-    const [answers, setAnswers] = useState(Array(questions.length).fill(null))
-    const [submitted, setSubmitted] = useState(false)
+    const [answers, setAnswers] = useState([])
+    const [step, setStep] = useState(0)
     const router = useRouter()
 
-    const handleAnswer = (qIndex, moods) => {
-        const copy = [...answers]
-        copy[qIndex] = moods
-        setAnswers(copy)
-    }
-
-    const calculateMood = () => {
-        const score = {}
-        answers.forEach(moodList => {
-            moodList?.forEach(m => {
-                score[m] = (score[m] || 0) + 1
-            })
-        })
-
-        const max = Math.max(...Object.values(score))
-        const bestMoods = Object.entries(score)
-            .filter(([_, val]) => val === max)
-            .map(([m]) => m)
-
-        const selected = bestMoods[Math.floor(Math.random() * bestMoods.length)]
-        return selected
-    }
-
-    const handleSubmit = () => {
-        if (answers.includes(null)) {
-            alert("⛔ Réponds à toutes les questions !")
-            return
+    const handleSelect = (mood) => {
+        setAnswers([...answers, mood])
+        if (step + 1 < questions.length) {
+            setStep(step + 1)
+        } else {
+            // 🔮 choisir le mood le plus fréquent
+            const tally = {}
+            for (const m of [...answers, mood]) {
+                tally[m] = (tally[m] || 0) + 1
+            }
+            const best = Object.entries(tally).sort((a, b) => b[1] - a[1])[0][0]
+            router.push(`/recommendation?mood=${encodeURIComponent(best)}`)
         }
-
-        const finalMood = calculateMood()
-        router.push(`/recommendation?mood=${encodeURIComponent(finalMood)}`)
     }
+
+    const q = questions[step]
 
     return (
-        <div className="max-w-3xl mx-auto p-6 min-h-screen bg-gradient-to-br from-pink-50 to-yellow-50">
-            <a href="/" className="text-blue-600 underline block mb-4">← Retour à l’accueil</a>
-            <h1 className="text-2xl font-bold mb-6">🎮 Quel est ton mood anime aujourd’hui ?</h1>
+        <div className="min-h-screen flex flex-col justify-center items-center p-6 bg-gradient-to-br from-purple-50 to-blue-50">
+            <a href="/" className="absolute top-4 left-4 text-blue-600 underline">← Retour</a>
 
-            {questions.map((q, index) => (
-                <div key={index} className="mb-6">
-                    <p className="font-medium mb-2">{q.text}</p>
-                    <div className="space-y-1">
-                        {q.options.map((opt, i) => (
-                            <label key={i} className="block cursor-pointer">
-                                <input
-                                    type="radio"
-                                    name={`q${index}`}
-                                    className="mr-2"
-                                    onChange={() => handleAnswer(index, opt.moods)}
-                                    checked={answers[index] === opt.moods}
-                                />
-                                {opt.label}
-                            </label>
-                        ))}
-                    </div>
+            <h1 className="text-xl font-bold mb-6 text-center">🎯 Quiz d’humeur</h1>
+
+            <div className="bg-white p-6 rounded-xl shadow max-w-lg w-full text-center">
+                <p className="text-lg font-medium mb-4">{q.question}</p>
+                <div className="grid gap-4">
+                    {Object.entries(q.options).map(([mood, label]) => (
+                        <button
+                            key={mood}
+                            onClick={() => handleSelect(mood)}
+                            className="px-4 py-2 bg-blue-100 hover:bg-blue-200 rounded"
+                        >
+                            {label}
+                        </button>
+                    ))}
                 </div>
-            ))}
-
-            <button
-                onClick={handleSubmit}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-                🎯 Voir ma recommandation
-            </button>
+            </div>
         </div>
     )
 }

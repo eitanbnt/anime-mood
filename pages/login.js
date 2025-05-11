@@ -1,33 +1,40 @@
 import { useState } from "react"
 import { useRouter } from "next/router"
 
-export default function Login() {
-    const [username, setUsername] = useState("")
+/**
+ * Page de connexion sans mot de passe — définit juste un pseudo
+ */
+export default function LoginPage() {
+    const [input, setInput] = useState("")
     const router = useRouter()
 
     const handleLogin = () => {
-        if (username.trim()) {
-            localStorage.setItem("animeUsername", username)
-            router.replace("/")
-        }
+        if (!input.trim()) return alert("Choisis un pseudo !")
+        localStorage.setItem("animeUsername", input.trim())
+        router.replace("/")
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
-            <div className="bg-white rounded-xl shadow p-6 w-full max-w-sm">
-                <h1 className="text-xl font-bold mb-4">🔐 Connexion</h1>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50 px-4">
+            <div className="max-w-md w-full bg-white p-6 rounded-xl shadow">
+                <h1 className="text-2xl font-bold mb-4 text-center">Bienvenue 👋</h1>
+                <p className="text-sm text-gray-600 mb-6 text-center">
+                    Choisis ton nom d’utilisateur pour commencer.
+                </p>
+
                 <input
                     type="text"
-                    placeholder="Ton pseudo"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="w-full mb-4 px-4 py-2 border rounded"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Ton pseudo..."
+                    className="mb-4"
                 />
+
                 <button
                     onClick={handleLogin}
-                    className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700 transition"
+                    className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                 >
-                    Se connecter
+                    🚀 Commencer
                 </button>
             </div>
         </div>

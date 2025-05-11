@@ -2,6 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Typo par défaut */
 body {
-  @apply bg-gray-50 text-gray-900 font-sans;
+  font-family: 'Inter', sans-serif;
+  @apply text-gray-800 bg-gradient-to-br from-purple-50 to-blue-50;
+}
+
+/* Titres */
+h1, h2, h3 {
+  @apply font-semibold text-gray-900;
+}
+
+h1 {
+  @apply text-3xl mb-4;
+}
+
+h2 {
+  @apply text-xl mb-2;
+}
+
+/* Liens */
+a {
+  @apply text-blue-600 underline hover:text-blue-800 transition;
+}
+
+/* Boutons communs */
+button {
+  @apply transition duration-200 ease-in-out;
+}
+
+button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Cartes anime */
+.card {
+  @apply bg-white rounded-xl shadow p-4;
+}
+
+/* Champs de formulaire */
+input, textarea, select {
+  @apply border border-gray-300 rounded px-3 py-2 text-sm w-full;
+}
+
+input:focus, textarea:focus, select:focus {
+  @apply ring-2 ring-blue-300 outline-none;
+}
+
+/* Barre de chargement */
+#nprogress .bar {
+  background: #6366f1; /* violet doux */
+  height: 3px;
+}
+
+/* Position fixe en haut */
+#nprogress .bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
 }

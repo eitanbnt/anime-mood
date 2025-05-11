@@ -1,3 +1,5 @@
+// pages/api/update-cache.js
+
 import { PrismaClient } from "@prisma/client"
 import axios from "axios"
 
@@ -10,37 +12,42 @@ export default async function handler(req, res) {
 
     let all = []
 
-    for (let page = 1; page <= 500; page++) {
+    for (let page = 1; page <= 800; page++) {
         try {
-            const res = await axios.get("https://api.jikan.moe/v4/anime", {
+            const response = await axios.get("https://api.jikan.moe/v4/anime", {
                 params: {
                     limit: 25,
                     page,
                     order_by: "score",
-                    sort: "desc"
-                }
+                    sort: "desc",
+                },
             })
 
-            const list = res.data.data.map((a) => ({
+            const list = response.data.data.map((a) => ({
                 animeId: a.mal_id,
                 title: a.title,
-                titleEnglish: a.titleEnglish,
-                imageUrl: a.images.jpg.image_url,
-                synopsis: a.synopsis
+                titleEnglish: a.title_english,
+                imageUrl: a.images?.jpg?.image_url || "",
+                synopsis: a.synopsis || "",
             }))
 
             all.push(...list)
 
+            // ⏱️ Respect du rate-limit de Jikan : 2s entre chaque page
             await new Promise((r) => setTimeout(r, 2100))
         } catch (err) {
-            console.error("Erreur à la page", page, err.message)
+            console.error("❌ Erreur à la page", page, err.message)
             break
         }
     }
 
-    // Remplace tout le cache
-    await prisma.animeCache.deleteMany()
-    await prisma.animeCache.createMany({ data: all, skipDuplicates: true })
+    try {
+        await prisma.animeCache.deleteMany()
+        await prisma.animeCache.createMany({ data: all, skipDuplicates: true })
 
-    res.status(200).json({ success: true, count: all.length })
+        res.status(200).json({ success: true, count: all.length })
+    } catch (e) {
+        console.error("❌ Erreur en base :", e)
+        res.status(500).json({ error: "Erreur serveur lors de l'enregistrement" })
+    }
 }
