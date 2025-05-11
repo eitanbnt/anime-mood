@@ -2,49 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 🌈 Thème global personnalisé */
+/* Typo par défaut */
 body {
-  @apply bg-gradient-to-br from-purple-50 to-blue-50 text-gray-800 font-sans;
+  font-family: 'Inter', sans-serif;
+  @apply text-gray-800 bg-gradient-to-br from-purple-50 to-blue-50;
 }
 
+/* Titres */
 h1, h2, h3 {
-  @apply font-bold text-gray-800;
+  @apply font-semibold text-gray-900;
 }
 
+h1 {
+  @apply text-3xl mb-4;
+}
+
+h2 {
+  @apply text-xl mb-2;
+}
+
+/* Liens */
+a {
+  @apply text-blue-600 underline hover:text-blue-800 transition;
+}
+
+/* Boutons communs */
 button {
   @apply transition duration-200 ease-in-out;
 }
 
-button:hover {
-  @apply opacity-80;
+button:disabled {
+  @apply opacity-50 cursor-not-allowed;
 }
 
-/* Liens cliquables */
-a {
-  @apply text-blue-600 underline;
+/* Cartes anime */
+.card {
+  @apply bg-white rounded-xl shadow p-4;
 }
 
-a:hover {
-  @apply text-blue-800;
+/* Champs de formulaire */
+input, textarea, select {
+  @apply border border-gray-300 rounded px-3 py-2 text-sm w-full;
 }
 
-/* Champs d'entrée */
-input, textarea {
-  @apply border border-gray-300 rounded p-2 w-full text-sm;
-}
-
-/* Composants animés si besoin */
-.fade-in {
-  animation: fadeIn 0.4s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+input:focus, textarea:focus, select:focus {
+  @apply ring-2 ring-blue-300 outline-none;
 }
