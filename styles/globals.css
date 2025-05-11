@@ -2,6 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 🌈 Thème global personnalisé */
 body {
-  @apply bg-gray-50 text-gray-900 font-sans;
+  @apply bg-gradient-to-br from-purple-50 to-blue-50 text-gray-800 font-sans;
+}
+
+h1, h2, h3 {
+  @apply font-bold text-gray-800;
+}
+
+button {
+  @apply transition duration-200 ease-in-out;
+}
+
+button:hover {
+  @apply opacity-80;
+}
+
+/* Liens cliquables */
+a {
+  @apply text-blue-600 underline;
+}
+
+a:hover {
+  @apply text-blue-800;
+}
+
+/* Champs d'entrée */
+input, textarea {
+  @apply border border-gray-300 rounded p-2 w-full text-sm;
+}
+
+/* Composants animés si besoin */
+.fade-in {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

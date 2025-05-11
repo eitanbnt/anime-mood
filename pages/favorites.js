@@ -1,90 +1,92 @@
-import { PrismaClient } from "@prisma/client"
-import { useRouter } from 'next/router'
 import { useEffect, useState } from "react"
+import { useRouter } from "next/router"
 
-export async function getServerSideProps() {
-    const prisma = new PrismaClient()
-    const all = await prisma.recommendation.findMany({
-        where: { isFavorite: true },
-        orderBy: { createdAt: 'desc' }
-    })
-
-    return {
-        props: {
-            allFavorites: all.map((r) => ({
-                ...r,
-                createdAt: new Date(r.createdAt).toLocaleString(),
-            })),
-        },
-    }
-}
-
-export default function Favorites({ allFavorites }) {
-    const router = useRouter(); // Assurez-vous que router est défini ici
-    const [username, setUsername] = useState("");
+export default function FavoritesPage() {
+    const [favorites, setFavorites] = useState([])
+    const [search, setSearch] = useState("")
+    const [ready, setReady] = useState(false)
+    const router = useRouter()
 
     useEffect(() => {
-        const check = () => {
-            const saved = localStorage.getItem("animeUsername");
-            if (!saved) {
-                router.push("/login");
-            } else {
-                setUsername(saved);
-            }
-        };
-        check();
-    }, [router]);
-    const [userFavorites, setUserFavorites] = useState([])
-
-    useEffect(() => {
-        let userId = localStorage.getItem("animeUsername")
+        const userId = localStorage.getItem("animeUsername")
         if (!userId) {
-            userId = crypto.randomUUID()
-            localStorage.setItem("animeUserId", userId)
+            router.replace("/login")
+        } else {
+            fetch(`/api/favorites?userId=${userId}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    if (Array.isArray(data)) setFavorites(data)
+                })
+                .catch((err) => console.error("Erreur favoris :", err))
+                .finally(() => setReady(true))
         }
-        if (!userId) return
+    }, [router])
 
-        const filtered = allFavorites.filter((fav) => fav.userId === userId)
-        setUserFavorites(filtered)
-    }, [allFavorites])
+    const filtered = favorites.filter((fav) =>
+        fav.title.toLowerCase().includes(search.toLowerCase())
+    )
+
+    const handleRemove = async (animeId) => {
+        const userId = localStorage.getItem("animeUsername")
+        await fetch("/api/favorite", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ animeId, userId, isFavorite: false }),
+        })
+        setFavorites(favorites.filter((f) => f.animeId !== animeId))
+    }
+
+    const handleSeen = async (animeId) => {
+        const userId = localStorage.getItem("animeUsername")
+        await fetch("/api/seen", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ animeId, userId }),
+        })
+        alert("✅ Marqué comme vu")
+    }
+
+    if (!ready) return null
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="max-w-5xl mx-auto p-6 min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
             <a href="/" className="inline-block mb-6 text-blue-600 underline">
                 ← Retour à l’accueil
             </a>
 
-            <h1 className="text-2xl font-bold mb-4">💾 Tes favoris</h1>
+            <h1 className="text-2xl font-bold mb-4">💾 Mes favoris</h1>
 
-            {userFavorites.length === 0 ? (
-                <p>Aucun favori pour l’instant 💤</p>
+            <input
+                type="text"
+                placeholder="Rechercher un titre..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="mb-6"
+            />
+
+            {filtered.length === 0 ? (
+                <p>Aucun favori trouvé 😶</p>
             ) : (
                 <div className="grid md:grid-cols-3 gap-6">
-                    {userFavorites.map((fav) => (
-                        <div key={fav.id} className="bg-white rounded-xl p-4 shadow">
-                            <h2 className="font-semibold text-lg mb-2">{fav.title}</h2>
-                            <img src={fav.imageUrl} alt={fav.title} className="rounded mb-2" />
-                            <p className="text-sm text-gray-600 mb-2">Humeur : {fav.mood}</p>
-                            <p className="text-sm text-gray-400">Ajouté le : {fav.createdAt}</p>
-                            <button
-                                onClick={async () => {
-                                    const userId = localStorage.getItem("animeUsername")
-                                    const animeId = fav.animeId || fav.malId
-                                    if (!animeId || !userId) return alert("animeId ou userId manquant")
-
-                                    const res = await fetch("/api/seen", {
-                                        method: "POST",
-                                        headers: { "Content-Type": "application/json" },
-                                        body: JSON.stringify({ animeId, userId })
-                                    })
-
-                                    const result = await res.json()
-                                    console.log("✅ Réponse API :", result)
-                                    alert("Marqué comme vu")
-                                }}
-                            >
-                                ✅ Déjà vu
-                            </button>
+                    {filtered.map((anime) => (
+                        <div key={anime.animeId} className="bg-white p-4 rounded-xl shadow">
+                            <h2 className="text-lg font-semibold mb-2">{anime.title}</h2>
+                            <img src={anime.imageUrl} alt={anime.title} className="rounded mb-2 max-h-60 w-full object-cover" />
+                            <p className="text-sm text-gray-600 mb-2">{anime.synopsis?.slice(0, 100)}...</p>
+                            <div className="flex gap-4 text-sm">
+                                <button
+                                    onClick={() => handleSeen(anime.animeId)}
+                                    className="text-green-600 underline"
+                                >
+                                    ✅ Déjà vu
+                                </button>
+                                <button
+                                    onClick={() => handleRemove(anime.animeId)}
+                                    className="text-red-600 underline"
+                                >
+                                    ❌ Retirer
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
