@@ -12,7 +12,7 @@ export default function FavoritesPage() {
         if (!userId) {
             router.replace("/login")
         } else {
-            fetch(`/api/favorites?userId=${userId}`)
+            fetch(`/api/favorite?userId=${userId}`)
                 .then((res) => res.json())
                 .then((data) => {
                     if (Array.isArray(data)) setFavorites(data)

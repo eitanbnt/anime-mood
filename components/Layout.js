@@ -8,6 +8,7 @@ const tabs = [
     { href: "/seen", label: "Vus" },
     { href: "/stats", label: "Stats" },
     { href: "/profile", label: "Profil" },
+    { href: "/quiz", label: "Quizz" },
 ]
 
 export default function Layout({ children }) {
