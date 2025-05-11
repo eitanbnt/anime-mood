@@ -35,6 +35,16 @@ export default function AdminPage() {
             >
                 🔁 Mettre à jour la base anime
             </button>
+            <button
+                onClick={async () => {
+                    const res = await fetch("/api/build-mood-cache.js", { method: "POST" })
+                    const data = await res.json()
+                    alert(`✅ Base mise à jour avec ${data.count} moods`)
+                }}
+                className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700"
+            >
+                🔁 Mettre à jour la base moods
+            </button>
         </div>
     )
 }

@@ -39,3 +39,14 @@ model AnimeSeen {
 
   @@unique([animeId, userId]) // un anime ne peut être vu qu’une fois par user
 }
+
+model MoodCache {
+  id        Int     @id @default(autoincrement())
+  animeId   Int
+  title     String
+  titleEnglish String?
+  imageUrl  String
+  synopsis  String
+  genres    String?
+  mood      String
+}

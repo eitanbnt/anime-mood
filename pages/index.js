@@ -55,6 +55,7 @@ export default function Home() {
         Voir l’historique des recommandations →
       </a>
       <a href="/favorites" className="mt-4 text-sm text-blue-500 underline">Voir mes favoris →</a>
+      <a href="/explore" className="mt-4 text-sm text-blue-500 underline">Explore →</a>
       <a
         href="/quiz"
         className="inline-block px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition mt-4"
