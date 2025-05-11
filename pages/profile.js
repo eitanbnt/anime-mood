@@ -37,6 +37,9 @@ export default function ProfilePage() {
             <a href="/" className="inline-block mb-4 text-blue-600 underline">
                 ← Retour à l’accueil
             </a>
+            <a href="/admin" className="inline-block mb-4 text-blue-600 underline">
+                Page Admin
+            </a>
 
             <h1 className="text-2xl font-bold mb-4">👤 Mon profil</h1>
 

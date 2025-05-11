@@ -48,3 +48,18 @@ input, textarea, select {
 input:focus, textarea:focus, select:focus {
   @apply ring-2 ring-blue-300 outline-none;
 }
+
+/* Barre de chargement */
+#nprogress .bar {
+  background: #6366f1; /* violet doux */
+  height: 3px;
+}
+
+/* Position fixe en haut */
+#nprogress .bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+}

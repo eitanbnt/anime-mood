@@ -3,6 +3,7 @@ import { useRouter } from "next/router"
 
 export default function AdminPage() {
     const [logs, setLogs] = useState([])
+    const [loading, setLoading] = useState("")
     const router = useRouter()
 
     useEffect(() => {
@@ -12,14 +13,17 @@ export default function AdminPage() {
         }
     }, [router])
 
-    const call = async (url) => {
-        setLogs((prev) => [...prev, `⏳ Appel de ${url}...`])
+    const call = async (url, method = "POST") => {
+        setLoading(url)
+        setLogs((prev) => [...prev, `⏳ Appel ${method} de ${url}...`])
         try {
-            const res = await fetch(url)
+            const res = await fetch(url, { method })
             const json = await res.json()
             setLogs((prev) => [...prev, `✅ ${url} → ${JSON.stringify(json)}`])
         } catch (e) {
-            setLogs((prev) => [...prev, `❌ Erreur : ${url}`])
+            setLogs((prev) => [...prev, `❌ Erreur sur ${url}`])
+        } finally {
+            setLoading("")
         }
     }
 
@@ -32,24 +36,27 @@ export default function AdminPage() {
 
             <div className="space-y-3 mb-6">
                 <button
-                    onClick={() => call("/api/update-cache")}
-                    className="px-4 py-2 bg-blue-600 text-white rounded"
+                    onClick={() => call("/api/update-cache", "POST")}
+                    disabled={loading}
+                    className={`px-4 py-2 text-white rounded ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"}`}
                 >
-                    🔁 Mettre à jour animeCache
+                    🔁 Mettre à jour animeCache {loading === "/api/update-cache" && "⏳"}
                 </button>
 
                 <button
-                    onClick={() => call("/api/build-mood-cache")}
-                    className="px-4 py-2 bg-pink-600 text-white rounded"
+                    onClick={() => call("/api/build-mood-cache", "POST")}
+                    disabled={loading}
+                    className={`px-4 py-2 text-white rounded ${loading ? "bg-gray-400" : "bg-pink-600 hover:bg-pink-700"}`}
                 >
-                    🧠 Reconstruire moodCache
+                    🧠 Reconstruire moodCache {loading === "/api/build-mood-cache" && "⏳"}
                 </button>
 
                 <button
-                    onClick={() => call("/api/clear-cache")}
-                    className="px-4 py-2 bg-red-600 text-white rounded"
+                    onClick={() => call("/api/clear-cache", "POST")}
+                    disabled={loading}
+                    className={`px-4 py-2 text-white rounded ${loading ? "bg-gray-400" : "bg-red-600 hover:bg-red-700"}`}
                 >
-                    🗑️ Vider les caches
+                    🗑️ Vider les caches {loading === "/api/clear-cache" && "⏳"}
                 </button>
             </div>
 
