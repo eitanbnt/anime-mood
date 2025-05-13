@@ -43,31 +43,45 @@ function TranslateSynopsis({ original }) {
     )
 }
 
+// 🎨 Dictionnaire pour couleurs + emojis par mood
+const moodStyle = {
+    Heureux: { color: "bg-green-100", emoji: "😄" },
+    Triste: { color: "bg-blue-100", emoji: "😢" },
+    Nostalgique: { color: "bg-purple-100", emoji: "🕰️" },
+    Énergique: { color: "bg-red-100", emoji: "💥" },
+    Amoureux: { color: "bg-pink-100", emoji: "❤️" },
+    Calme: { color: "bg-gray-100", emoji: "😌" },
+    "Mind-blowing": { color: "bg-indigo-100", emoji: "🤯" },
+    "À pleurer": { color: "bg-blue-200", emoji: "😭" },
+    Délirant: { color: "bg-yellow-100", emoji: "🤪" },
+    "Feel-good": { color: "bg-orange-100", emoji: "☀️" },
+}
+
 export default function RecommendationPage() {
     const router = useRouter()
     const { mood } = router.query
+
     const [animes, setAnimes] = useState([])
     const [loading, setLoading] = useState(true)
     const [ready, setReady] = useState(false)
 
     useEffect(() => {
         const username = localStorage.getItem("animeUsername")
-        if (!username) {
-            router.replace("/login")
-        } else {
-            setReady(true)
-        }
+        if (!username) router.replace("/login")
+        else setReady(true)
     }, [router])
 
     const fetchRecommendations = async () => {
         setLoading(true)
         const userId = localStorage.getItem("animeUsername")
+
         try {
             const res = await fetch(`/api/recommend?mood=${encodeURIComponent(mood)}&userId=${userId}`)
             const data = await res.json()
             setAnimes(data)
         } catch (err) {
             console.error("Erreur de chargement :", err)
+            setAnimes([])
         } finally {
             setLoading(false)
         }
@@ -94,10 +108,10 @@ export default function RecommendationPage() {
     }
 
     useEffect(() => {
-        if (mood && ready) {
-            fetchRecommendations()
-        }
+        if (mood && ready) fetchRecommendations()
     }, [mood, ready])
+
+    const style = moodStyle[mood] || { color: "bg-gray-100", emoji: "❓" }
 
     if (!ready) return null
     if (loading) return <div className="p-8">Chargement...</div>
@@ -105,12 +119,10 @@ export default function RecommendationPage() {
 
     return (
         <div className="max-w-5xl mx-auto p-6 bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen">
-            <a href="/" className="inline-block mb-6 text-blue-600 underline">
-                ← Retour à l’accueil
-            </a>
+            <a href="/" className="inline-block mb-6 text-blue-600 underline">← Retour à l’accueil</a>
 
             <h1 className="text-2xl font-bold mb-4">
-                Recommandations pour l’humeur : {mood}
+                {style.emoji} Recommandations pour l’humeur : <span className="capitalize">{mood}</span>
             </h1>
 
             <button
@@ -122,21 +134,20 @@ export default function RecommendationPage() {
 
             <div className="grid md:grid-cols-3 gap-6">
                 {animes.map((anime, idx) => (
-                    <div key={idx} className="bg-white p-4 rounded-xl shadow">
-                        <h2 className="text-lg font-semibold mb-2">{anime.title}</h2>
-                        <img src={anime.imageUrl} alt={anime.title} className="rounded mb-2 max-h-60 w-full object-cover" />
+                    <div key={idx} className={`p-4 rounded-xl shadow ${style.color}`}>
+                        <h2 className="text-lg font-semibold mb-2">{anime.titleEnglish || anime.title}</h2>
+                        <img
+                            src={anime.imageUrl}
+                            alt={anime.title}
+                            className="rounded mb-2 max-h-60 w-full object-cover"
+                        />
                         <TranslateSynopsis original={anime.synopsis} />
-                        <div className="flex gap-3 text-sm mt-3">
-                            <button
-                                onClick={() => handleSeen(anime.animeId)}
-                                className="text-green-600 underline"
-                            >
+
+                        <div className="flex gap-4 text-sm mt-3">
+                            <button onClick={() => handleSeen(anime.animeId)} className="underline text-green-600">
                                 ✅ Déjà vu
                             </button>
-                            <button
-                                onClick={() => handleFavorite(anime.animeId)}
-                                className="text-orange-600 underline"
-                            >
+                            <button onClick={() => handleFavorite(anime.animeId)} className="underline text-orange-600">
                                 💾 Favori
                             </button>
                         </div>

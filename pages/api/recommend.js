@@ -1,75 +1,80 @@
-import { PrismaClient } from "@prisma/client"
-const prisma = new PrismaClient()
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
-// 🔁 Fonction de pondération par préférences utilisateur
+// 🔁 Pondération des genres en fonction des goûts utilisateur
 async function getUserPreferences(userId) {
   const recs = await prisma.recommendation.findMany({
     where: { userId },
     select: { genres: true },
-  })
+  });
 
-  const genreCount = {}
+  const genreCount = {};
 
   for (const rec of recs) {
     const genreList =
       typeof rec.genres === "string"
         ? rec.genres.split(",")
-        : rec.genres || []
+        : rec.genres || [];
 
     for (const g of genreList) {
-      const genre = g.trim()
-      if (genre) genreCount[genre] = (genreCount[genre] || 0) + 1
+      const genre = g.trim();
+      if (genre) genreCount[genre] = (genreCount[genre] || 0) + 1;
     }
   }
 
-  return { genreCount }
+  return { genreCount };
 }
 
 export default async function handler(req, res) {
-  const { mood, userId } = req.query
-  const cleanMood = decodeURIComponent(mood)
+  const { mood, userId } = req.query;
+  const cleanMood = decodeURIComponent(mood);
 
   if (!cleanMood || !userId) {
-    return res.status(400).json({ error: "Paramètres manquants" })
+    return res.status(400).json({ error: "Paramètres manquants" });
   }
 
   try {
-    const prefs = await getUserPreferences(userId)
-
-    const animeList = await prisma.animeCache.findMany({
+    // 🎯 Recommandations disponibles pour ce mood
+    const moodEntries = await prisma.moodCache.findMany({
       where: { mood: cleanMood },
-    })
+      include: { anime: true }, // grâce à ton schema mis à jour
+    });
 
+    // 👀 Animes déjà vus par l'utilisateur
     const seen = await prisma.recommendation.findMany({
       where: { userId },
       select: { animeId: true },
-    })
+    });
 
-    const seenIds = new Set(seen.map((r) => r.animeId))
+    const seenIds = new Set(seen.map((r) => r.animeId));
+    const prefs = await getUserPreferences(userId);
 
-    const unseen = animeList
-      .filter((a) => !seenIds.has(a.animeId))
-      .map((anime) => {
+    const unseen = moodEntries
+      .filter((entry) => entry.anime && !seenIds.has(entry.anime.animeId))
+      .map((entry) => {
+        const { anime } = entry;
         const genreList =
           typeof anime.genres === "string"
             ? anime.genres.split(",")
-            : anime.genres || []
+            : anime.genres || [];
 
         const score = genreList.reduce(
           (sum, g) => sum + (prefs.genreCount[g.trim()] || 0),
           0
-        )
+        );
 
-        return { ...anime, score }
-      })
+        return {
+          ...anime,
+          mood: cleanMood,
+          score,
+        };
+      });
 
     if (unseen.length === 0) {
-      return res.status(200).json([])
+      return res.status(200).json([]);
     }
 
-    const selected = unseen
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
+    const selected = unseen.sort((a, b) => b.score - a.score).slice(0, 3);
 
     await Promise.all(
       selected.map((anime) =>
@@ -77,19 +82,26 @@ export default async function handler(req, res) {
           data: {
             animeId: anime.animeId,
             title: anime.title,
+            titleEnglish: anime.titleEnglish,
             imageUrl: anime.imageUrl,
             synopsis: anime.synopsis,
             mood: cleanMood,
             userId,
-            genres: anime.genres,
+            genres: Array.isArray(anime.genres)
+              ? anime.genres.map((g) => g.name).join(", ")
+              : anime.genres || "",
+            trailer: anime.trailer,
+            source: anime.source,
+            episodes: anime.episodes,
+            score: anime.score?.toString() || null,
           },
         })
       )
-    )
+    );
 
-    res.status(200).json(selected)
+    res.status(200).json(selected);
   } catch (error) {
-    console.error("Erreur recommandation :", error)
-    res.status(500).json({ error: "Erreur serveur" })
+    console.error("Erreur recommandation :", error);
+    res.status(500).json({ error: "Erreur serveur" });
   }
 }

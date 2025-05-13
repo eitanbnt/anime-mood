@@ -8,42 +8,44 @@ datasource db {
 }
 
 model Genre {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
+  id     Int          @id @default(autoincrement())
+  name   String       @unique
   animes AnimeCache[] @relation("AnimeGenres")
 }
 
 model Recommendation {
-  id         Int      @id @default(autoincrement())
-  animeId    Int
-  title      String
+  id           Int      @id @default(autoincrement())
+  animeId      Int
+  title        String
   titleEnglish String?
-  imageUrl   String
-  mood       String
-  synopsis   String? 
-  userId     String?
-  note       String?
-  isFavorite Boolean  @default(false)
-  trailer   String?
-  source    String?
-  episodes  String?
-  score     String?
-  createdAt  DateTime @default(now())
+  imageUrl     String
+  mood         String
+  synopsis     String?
+  userId       String?
+  note         String?
+  isFavorite   Boolean  @default(false)
+  trailer      String?
+  source       String?
+  episodes     String?
+  score        String?
+  genres       String? // ← ✅ Ajoute cette ligne
+  createdAt    DateTime @default(now())
 }
 
 model AnimeCache {
-  id        Int      @id @default(autoincrement())
-  animeId   Int      @unique
-  title     String
+  id           Int        @id @default(autoincrement())
+  animeId      Int        @unique
+  title        String
   titleEnglish String?
-  imageUrl  String
-  synopsis  String?
-  genres    Genre[] @relation("AnimeGenres")
-  trailer   String?
-  source    String?
-  episodes  String?
-  score     String?
-  createdAt DateTime @default(now())
+  imageUrl     String
+  synopsis     String?
+  genres       Genre[]    @relation("AnimeGenres")
+  trailer      String?
+  source       String?
+  episodes     String?
+  score        String?
+  moodCache    MoodCache?
+  createdAt    DateTime   @default(now())
 }
 
 model AnimeSeen {
@@ -56,15 +58,16 @@ model AnimeSeen {
 }
 
 model MoodCache {
-  id        Int     @id @default(autoincrement())
-  animeId   Int
-  title     String
+  id           Int        @id @default(autoincrement())
+  animeId      Int        @unique
+  anime        AnimeCache @relation(fields: [animeId], references: [animeId])
+  title        String
   titleEnglish String?
-  imageUrl  String
-  synopsis  String
-  trailer   String?
-  source    String?
-  episodes  String?
-  score     String?
-  mood      String
+  imageUrl     String
+  synopsis     String
+  trailer      String?
+  source       String?
+  episodes     String?
+  score        String?
+  mood         String
 }
