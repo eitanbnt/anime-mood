@@ -134,26 +134,42 @@ export default function RecommendationPage() {
 
             <div className="grid md:grid-cols-3 gap-6">
                 {animes.map((anime, idx) => (
-                    <div key={idx} className={`p-4 rounded-xl shadow ${style.color}`}>
-                        <h2 className="text-lg font-semibold mb-2">{anime.titleEnglish || anime.title}</h2>
+                    <div key={idx} className="bg-white p-4 rounded-xl shadow">
+                        <h2 className="text-lg font-semibold mb-2">{anime.title}</h2>
                         <img
                             src={anime.imageUrl}
                             alt={anime.title}
                             className="rounded mb-2 max-h-60 w-full object-cover"
                         />
+
+                        <p className="text-sm text-gray-600 mb-1">
+                            Genres :{" "}
+                            {(typeof anime.genres === "string"
+                                ? anime.genres.split(",")
+                                : anime.genres || []
+                            ).join(", ")}
+                        </p>
+
                         <TranslateSynopsis original={anime.synopsis} />
 
-                        <div className="flex gap-4 text-sm mt-3">
-                            <button onClick={() => handleSeen(anime.animeId)} className="underline text-green-600">
+                        <div className="flex gap-3 text-sm mt-3">
+                            <button
+                                onClick={() => handleSeen(anime.animeId)}
+                                className="text-green-600 underline"
+                            >
                                 ✅ Déjà vu
                             </button>
-                            <button onClick={() => handleFavorite(anime.animeId)} className="underline text-orange-600">
+                            <button
+                                onClick={() => handleFavorite(anime.animeId)}
+                                className="text-orange-600 underline"
+                            >
                                 💾 Favori
                             </button>
                         </div>
                     </div>
                 ))}
             </div>
+
         </div>
     )
 }

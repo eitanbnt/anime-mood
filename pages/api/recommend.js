@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-// 🔁 Pondération des genres en fonction des goûts utilisateur
+// 🔁 Pondération des préférences utilisateur (genres aimés)
 async function getUserPreferences(userId) {
   const recs = await prisma.recommendation.findMany({
     where: { userId },
@@ -12,17 +12,14 @@ async function getUserPreferences(userId) {
 
   for (const rec of recs) {
     const genreList =
-      typeof rec.genres === "string"
-        ? rec.genres.split(",")
-        : rec.genres || [];
-
+      typeof rec.genres === "string" ? rec.genres.split(",") : [];
     for (const g of genreList) {
       const genre = g.trim();
       if (genre) genreCount[genre] = (genreCount[genre] || 0) + 1;
     }
   }
 
-  return { genreCount };
+  return genreCount;
 }
 
 export default async function handler(req, res) {
@@ -34,40 +31,29 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 🎯 Recommandations disponibles pour ce mood
+    const genrePrefs = await getUserPreferences(userId);
+
     const moodEntries = await prisma.moodCache.findMany({
       where: { mood: cleanMood },
-      include: { anime: true }, // grâce à ton schema mis à jour
     });
 
-    // 👀 Animes déjà vus par l'utilisateur
     const seen = await prisma.recommendation.findMany({
       where: { userId },
       select: { animeId: true },
     });
 
     const seenIds = new Set(seen.map((r) => r.animeId));
-    const prefs = await getUserPreferences(userId);
 
     const unseen = moodEntries
-      .filter((entry) => entry.anime && !seenIds.has(entry.anime.animeId))
-      .map((entry) => {
-        const { anime } = entry;
+      .filter((a) => !seenIds.has(a.animeId))
+      .map((anime) => {
         const genreList =
-          typeof anime.genres === "string"
-            ? anime.genres.split(",")
-            : anime.genres || [];
-
+          typeof anime.genres === "string" ? anime.genres.split(",") : [];
         const score = genreList.reduce(
-          (sum, g) => sum + (prefs.genreCount[g.trim()] || 0),
+          (sum, g) => sum + (genrePrefs[g.trim()] || 0),
           0
         );
-
-        return {
-          ...anime,
-          mood: cleanMood,
-          score,
-        };
+        return { ...anime, score };
       });
 
     if (unseen.length === 0) {
@@ -85,15 +71,13 @@ export default async function handler(req, res) {
             titleEnglish: anime.titleEnglish,
             imageUrl: anime.imageUrl,
             synopsis: anime.synopsis,
-            mood: cleanMood,
-            userId,
-            genres: Array.isArray(anime.genres)
-              ? anime.genres.map((g) => g.name).join(", ")
-              : anime.genres || "",
             trailer: anime.trailer,
             source: anime.source,
             episodes: anime.episodes,
-            score: anime.score?.toString() || null,
+            score: anime.score,
+            mood: cleanMood,
+            userId,
+            genres: anime.genres, // sauvegarde dans recommendation
           },
         })
       )

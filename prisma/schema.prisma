@@ -70,4 +70,5 @@ model MoodCache {
   episodes     String?
   score        String?
   mood         String
+  genres       String? // ← ✅ Ajoute cette ligne
 }

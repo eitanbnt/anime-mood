@@ -1,107 +1,54 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-// 🔁 Pondération des genres en fonction des goûts utilisateur
-async function getUserPreferences(userId) {
-    const recs = await prisma.recommendation.findMany({
-        where: { userId },
-        select: { genres: true },
-    });
-
-    const genreCount = {};
-
-    for (const rec of recs) {
-        const genreList =
-            typeof rec.genres === "string"
-                ? rec.genres.split(",")
-                : rec.genres || [];
-
-        for (const g of genreList) {
-            const genre = g.trim();
-            if (genre) genreCount[genre] = (genreCount[genre] || 0) + 1;
-        }
-    }
-
-    return { genreCount };
-}
-
 export default async function handler(req, res) {
-    const { mood, userId } = req.query;
-    const cleanMood = decodeURIComponent(mood);
-
-    if (!cleanMood || !userId) {
-        return res.status(400).json({ error: "Paramètres manquants" });
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "Méthode non autorisée" });
     }
 
     try {
-        // 🎯 Recommandations disponibles pour ce mood
-        const moodEntries = await prisma.moodCache.findMany({
-            where: { mood: cleanMood },
-            include: { anime: true },
+        const animeList = await prisma.animeCache.findMany({
+            include: {
+                genres: true,
+                moodCache: true,
+            },
         });
 
-        // 👀 Animes déjà vus par l'utilisateur
-        const seen = await prisma.recommendation.findMany({
-            where: { userId },
-            select: { animeId: true },
-        });
+        const entries = [];
 
-        const seenIds = new Set(seen.map((r) => r.animeId));
-        const prefs = await getUserPreferences(userId);
+        for (const anime of animeList) {
+            // Vérifie que le mood est défini via moodCache
+            const mood = anime.moodCache?.mood;
+            if (!anime.animeId || !anime.title || !anime.imageUrl || !anime.synopsis || !mood) {
+                console.warn("⛔ Donnée incomplète ignorée :", anime);
+                continue;
+            }
 
-        const unseen = moodEntries
-            .filter((entry) => entry.anime && !seenIds.has(entry.anime.animeId))
-            .map((entry) => {
-                const { anime } = entry;
-                const genreList =
-                    typeof anime.genres === "string"
-                        ? anime.genres.split(",")
-                        : anime.genres || [];
+            // Transforme les genres liés en texte
+            const genreText = anime.genres?.map((g) => g.name).join(", ") || "";
 
-                const score = genreList.reduce(
-                    (sum, g) => sum + (prefs.genreCount[g.trim()] || 0),
-                    0
-                );
-
-                return {
-                    ...anime,
-                    mood: cleanMood,
-                    score,
-                };
+            entries.push({
+                animeId: anime.animeId,
+                title: anime.title,
+                titleEnglish: anime.titleEnglish || "",
+                imageUrl: anime.imageUrl,
+                synopsis: anime.synopsis,
+                trailer: anime.trailer || "",
+                source: anime.source || "",
+                episodes: anime.episodes || "",
+                score: anime.score || "",
+                mood: mood,
+                genres: genreText,
             });
-
-        if (unseen.length === 0) {
-            return res.status(200).json([]);
         }
 
-        const selected = unseen.sort((a, b) => b.score - a.score).slice(0, 3);
+        // Réinitialisation
+        await prisma.moodCache.deleteMany();
+        await prisma.moodCache.createMany({ data: entries, skipDuplicates: true });
 
-        await Promise.all(
-            selected.map((anime) =>
-                prisma.recommendation.create({
-                    data: {
-                        animeId: anime.animeId,
-                        title: anime.title,
-                        titleEnglish: anime.titleEnglish,
-                        imageUrl: anime.imageUrl,
-                        synopsis: anime.synopsis,
-                        mood: cleanMood,
-                        userId,
-                        genres: Array.isArray(anime.genres)
-                            ? anime.genres.map((g) => g.name).join(", ")
-                            : anime.genres || "",
-                        trailer: anime.trailer,
-                        source: anime.source,
-                        episodes: anime.episodes,
-                        score: anime.score?.toString() || null,
-                    },
-                })
-            )
-        );
-
-        res.status(200).json(selected);
-    } catch (error) {
-        console.error("Erreur recommandation :", error);
+        res.status(200).json({ success: true, count: entries.length });
+    } catch (err) {
+        console.error("❌ Erreur build-mood-cache:", err);
         res.status(500).json({ error: "Erreur serveur" });
     }
 }
