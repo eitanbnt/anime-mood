@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Genre {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  animes AnimeCache[] @relation("AnimeGenres")
+}
+
 model Recommendation {
   id         Int      @id @default(autoincrement())
   animeId    Int
@@ -18,7 +24,10 @@ model Recommendation {
   userId     String?
   note       String?
   isFavorite Boolean  @default(false)
-  genres    String?
+  trailer   String?
+  source    String?
+  episodes  String?
+  score     String?
   createdAt  DateTime @default(now())
 }
 
@@ -29,6 +38,11 @@ model AnimeCache {
   titleEnglish String?
   imageUrl  String
   synopsis  String?
+  genres    Genre[] @relation("AnimeGenres")
+  trailer   String?
+  source    String?
+  episodes  String?
+  score     String?
   createdAt DateTime @default(now())
 }
 
@@ -48,6 +62,9 @@ model MoodCache {
   titleEnglish String?
   imageUrl  String
   synopsis  String
-  genres    String?
+  trailer   String?
+  source    String?
+  episodes  String?
+  score     String?
   mood      String
 }
