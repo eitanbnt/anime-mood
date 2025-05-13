@@ -1,75 +1,66 @@
-import { PrismaClient } from "@prisma/client"
-const prisma = new PrismaClient()
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
-// 🔁 Fonction de pondération par préférences utilisateur
+// 🔁 Pondération des préférences utilisateur (genres aimés)
 async function getUserPreferences(userId) {
   const recs = await prisma.recommendation.findMany({
     where: { userId },
     select: { genres: true },
-  })
+  });
 
-  const genreCount = {}
+  const genreCount = {};
 
   for (const rec of recs) {
     const genreList =
-      typeof rec.genres === "string"
-        ? rec.genres.split(",")
-        : rec.genres || []
-
+      typeof rec.genres === "string" ? rec.genres.split(",") : [];
     for (const g of genreList) {
-      const genre = g.trim()
-      if (genre) genreCount[genre] = (genreCount[genre] || 0) + 1
+      const genre = g.trim();
+      if (genre) genreCount[genre] = (genreCount[genre] || 0) + 1;
     }
   }
 
-  return { genreCount }
+  return genreCount;
 }
 
 export default async function handler(req, res) {
-  const { mood, userId } = req.query
-  const cleanMood = decodeURIComponent(mood)
+  const { mood, userId } = req.query;
+  const cleanMood = decodeURIComponent(mood);
 
   if (!cleanMood || !userId) {
-    return res.status(400).json({ error: "Paramètres manquants" })
+    return res.status(400).json({ error: "Paramètres manquants" });
   }
 
   try {
-    const prefs = await getUserPreferences(userId)
+    const genrePrefs = await getUserPreferences(userId);
 
-    const animeList = await prisma.animeCache.findMany({
+    const moodEntries = await prisma.moodCache.findMany({
       where: { mood: cleanMood },
-    })
+    });
 
     const seen = await prisma.recommendation.findMany({
       where: { userId },
       select: { animeId: true },
-    })
+    });
 
-    const seenIds = new Set(seen.map((r) => r.animeId))
+    const seenIds = new Set(seen.map((r) => r.animeId));
 
-    const unseen = animeList
+    const unseen = moodEntries
       .filter((a) => !seenIds.has(a.animeId))
       .map((anime) => {
         const genreList =
-          typeof anime.genres === "string"
-            ? anime.genres.split(",")
-            : anime.genres || []
-
+          typeof anime.genres === "string" ? anime.genres.split(",") : [];
         const score = genreList.reduce(
-          (sum, g) => sum + (prefs.genreCount[g.trim()] || 0),
+          (sum, g) => sum + (genrePrefs[g.trim()] || 0),
           0
-        )
-
-        return { ...anime, score }
-      })
+        );
+        return { ...anime, score };
+      });
 
     if (unseen.length === 0) {
-      return res.status(200).json([])
+      return res.status(200).json([]);
     }
 
-    const selected = unseen
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
+    const selected = unseen.sort((a, b) => b.score - a.score).slice(0, 3);
 
     await Promise.all(
       selected.map((anime) =>
@@ -77,19 +68,24 @@ export default async function handler(req, res) {
           data: {
             animeId: anime.animeId,
             title: anime.title,
+            titleEnglish: anime.titleEnglish,
             imageUrl: anime.imageUrl,
             synopsis: anime.synopsis,
+            trailer: anime.trailer,
+            source: anime.source,
+            episodes: anime.episodes,
+            score: anime.score,
             mood: cleanMood,
             userId,
-            genres: anime.genres,
+            genres: anime.genres, // sauvegarde dans recommendation
           },
         })
       )
-    )
+    );
 
-    res.status(200).json(selected)
+    res.status(200).json(selected);
   } catch (error) {
-    console.error("Erreur recommandation :", error)
-    res.status(500).json({ error: "Erreur serveur" })
+    console.error("Erreur recommandation :", error);
+    res.status(500).json({ error: "Erreur serveur" });
   }
 }

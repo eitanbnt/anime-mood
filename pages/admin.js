@@ -13,17 +13,14 @@ export default function AdminPage() {
         }
     }, [router])
 
-    const call = async (url, method = "POST") => {
-        setLoading(url)
-        setLogs((prev) => [...prev, `⏳ Appel ${method} de ${url}...`])
+    const call = async (url, method = "GET") => {
+        setLogs((prev) => [...prev, `⏳ Appel de ${url}...`])
         try {
             const res = await fetch(url, { method })
             const json = await res.json()
             setLogs((prev) => [...prev, `✅ ${url} → ${JSON.stringify(json)}`])
         } catch (e) {
-            setLogs((prev) => [...prev, `❌ Erreur sur ${url}`])
-        } finally {
-            setLoading("")
+            setLogs((prev) => [...prev, `❌ Erreur : ${url}`])
         }
     }
 
@@ -45,10 +42,9 @@ export default function AdminPage() {
 
                 <button
                     onClick={() => call("/api/build-mood-cache", "POST")}
-                    disabled={loading}
-                    className={`px-4 py-2 text-white rounded ${loading ? "bg-gray-400" : "bg-pink-600 hover:bg-pink-700"}`}
+                    className="px-4 py-2 bg-pink-600 text-white rounded"
                 >
-                    🧠 Reconstruire moodCache {loading === "/api/build-mood-cache" && "⏳"}
+                    🧠 Reconstruire moodCache
                 </button>
 
                 <button
