@@ -68,13 +68,13 @@ export default async function handler(req, res) {
           data: {
             animeId: anime.animeId,
             title: anime.title,
-            titleEnglish: anime.titleEnglish,
+            titleEnglish: anime.titleEnglish || "",
             imageUrl: anime.imageUrl,
             synopsis: anime.synopsis,
             trailer: anime.trailer,
             source: anime.source,
             episodes: anime.episodes,
-            score: anime.score,
+            score: String(anime.score || ""),
             mood: cleanMood,
             userId,
             genres: anime.genres, // sauvegarde dans recommendation
