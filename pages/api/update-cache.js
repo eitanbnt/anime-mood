@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
     let all = []
 
-    for (let page = 1; page <= 2; page++) {
+    for (let page = 1; page <= 800; page++) {
         try {
             const response = await axios.get("https://api.jikan.moe/v4/anime", {
                 params: {
