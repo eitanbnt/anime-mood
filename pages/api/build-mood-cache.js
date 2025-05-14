@@ -4,11 +4,11 @@ const prisma = new PrismaClient();
 // 🧠 Correspondance genre → mood
 const genreToMood = {
     Romance: "Amoureux",
-    Comedy: "Feel-good",
+    Comedy: "Délirant",
     Horror: "Mind-blowing",
     Drama: "À pleurer",
     Action: "Énergique",
-    SliceOfLife: "Calme",
+    SliceOfLife: "Feel-good",
     Fantasy: "Nostalgique",
     Psychological: "Mind-blowing",
     Supernatural: "Mind-blowing",
@@ -16,7 +16,14 @@ const genreToMood = {
     Adventure: "Heureux",
     Sports: "Énergique",
     Mystery: "Mind-blowing",
-};
+    Thriller: "Mind-blowing",
+    SciFi: "Mind-blowing",
+    SuperPower: "Énergique",
+    School: "Feel-good",
+    Parody: "Délirant",
+    Mecha: "Mind-blowing",
+}
+
 
 export default async function handler(req, res) {
     if (req.method !== "POST") {
