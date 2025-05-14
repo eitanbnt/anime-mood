@@ -33,7 +33,7 @@ export default function ExplorePage() {
         })
 
         setFiltered(result)
-        setCurrentPage(1) // reset page à chaque nouveau filtre
+        setCurrentPage(1)
     }, [search, genreFilter, moodFilter, animeCache])
 
     const genres = Array.from(new Set(
@@ -44,26 +44,15 @@ export default function ExplorePage() {
         )
     ))
 
-    const moods = [
-        "Heureux",
-        "Triste",
-        "Nostalgique",
-        "Énergique",
-        "Amoureux",
-        "Calme",
-        "Mind-blowing",
-        "À pleurer",
-        "Délirant",
-        "Feel-good",
-    ]
+    const moods = Array.from(new Set(animeCache.map((a) => a.mood).filter(Boolean)))
 
     const pageCount = Math.ceil(filtered.length / itemsPerPage)
     const startIdx = (currentPage - 1) * itemsPerPage
     const currentItems = filtered.slice(startIdx, startIdx + itemsPerPage)
 
     return (
-        <div>
-            <h1 className="text-3xl font-bold mb-4">🔎 Explorer les animes</h1>
+        <div className="max-w-5xl mx-auto p-6 bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen">
+            <h1 className="text-3xl font-bold mb-6 text-center">🔎 Explorer les animes</h1>
 
             <input
                 type="text"
@@ -80,9 +69,7 @@ export default function ExplorePage() {
                         <button
                             key={g}
                             onClick={() => setGenreFilter(genreFilter === g ? "" : g)}
-                            className={`px-3 py-1 rounded border text-sm ${genreFilter === g
-                                    ? "bg-blue-600 text-white"
-                                    : "bg-white hover:bg-blue-50"
+                            className={`px-3 py-1 rounded border text-sm ${genreFilter === g ? "bg-blue-600 text-white" : "bg-white hover:bg-blue-50"
                                 }`}
                         >
                             {g}
@@ -91,16 +78,15 @@ export default function ExplorePage() {
                 </div>
             </div>
 
+
             <div className="mb-6">
-                <h2 className="font-semibold mb-1">🎨 Humeurs</h2>
+                <h2 className="font-semibold mb-1">🎨 Mood</h2>
                 <div className="flex flex-wrap gap-2">
                     {moods.map((m) => (
                         <button
                             key={m}
                             onClick={() => setMoodFilter(moodFilter === m ? "" : m)}
-                            className={`px-3 py-1 rounded border text-sm ${moodFilter === m
-                                    ? "bg-pink-500 text-white"
-                                    : "bg-white hover:bg-pink-50"
+                            className={`px-3 py-1 rounded border text-sm ${moodFilter === m ? "bg-pink-500 text-white" : "bg-white hover:bg-pink-50"
                                 }`}
                         >
                             {m}
@@ -168,7 +154,6 @@ export default function ExplorePage() {
                 </div>
             )}
 
-            {/* Pagination */}
             {pageCount > 1 && (
                 <div className="mt-6 flex justify-center gap-4 items-center">
                     <button
