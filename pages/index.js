@@ -1,5 +1,6 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
+import { signIn, signOut, useSession } from "next-auth/react"
 
 const moods = {
   Heureux: "😄",
@@ -17,6 +18,18 @@ const moods = {
 export default function HomePage() {
   const router = useRouter()
   const [username, setUsername] = useState("")
+  const { data: session } = useSession()
+
+  if (session) {
+    return (
+      <>
+        <p>Connecté en tant que {session.user.email}</p>
+        <button onClick={() => signOut()}>Se déconnecter</button>
+      </>
+    )
+  } else {
+    return <button onClick={() => signIn("google")}>Connexion avec Google</button>
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem("animeUsername")

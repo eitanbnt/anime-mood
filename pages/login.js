@@ -1,42 +1,46 @@
-import { useState } from "react"
+
+import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/router"
+import { useEffect } from "react"
 
-/**
- * Page de connexion sans mot de passe — définit juste un pseudo
- */
+import { signIn } from "next-auth/react"
+
 export default function LoginPage() {
-    const [input, setInput] = useState("")
-    const router = useRouter()
-
-    const handleLogin = () => {
-        if (!input.trim()) return alert("Choisis un pseudo !")
-        localStorage.setItem("animeUsername", input.trim())
-        router.replace("/")
-    }
-
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50 px-4">
-            <div className="max-w-md w-full bg-white p-6 rounded-xl shadow">
-                <h1 className="text-2xl font-bold mb-4 text-center">Bienvenue 👋</h1>
-                <p className="text-sm text-gray-600 mb-6 text-center">
-                    Choisis ton nom d’utilisateur pour commencer.
-                </p>
-
-                <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ton pseudo..."
-                    className="mb-4"
-                />
-
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <div className="bg-white p-6 rounded shadow text-center">
+                <h1 className="text-2xl font-bold mb-4">Connexion</h1>
                 <button
-                    onClick={handleLogin}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    onClick={() => signIn("google")}
+                    className="bg-blue-600 text-white px-4 py-2 rounded"
                 >
-                    🚀 Commencer
+                    Se connecter avec Google
                 </button>
             </div>
+        </div>
+    )
+}
+
+export default function ProfilePage() {
+    const { data: session, status } = useSession()
+    const router = useRouter()
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.replace("/login")
+        }
+    }, [status])
+
+    if (status === "loading") return <p>Chargement...</p>
+    if (!session) return null
+
+    return (
+        <div className="p-6">
+            <h1 className="text-xl">Bienvenue {session.user.name}</h1>
+            <p className="text-sm">{session.user.email}</p>
+            <button onClick={() => signOut()} className="underline text-red-600">
+                Se déconnecter
+            </button>
         </div>
     )
 }

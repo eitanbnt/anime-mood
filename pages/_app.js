@@ -5,6 +5,7 @@ import NProgress from "nprogress"
 import "nprogress/nprogress.css"
 import "../styles/globals.css"
 import Layout from "../components/Layout"
+import { SessionProvider } from "next-auth/react"
 
 NProgress.configure({ showSpinner: false, trickleSpeed: 100 })
 
@@ -26,7 +27,10 @@ export default function MyApp({ Component, pageProps }) {
 
   return (
     <Layout>
-      <Component {...pageProps} />
+      <SessionProvider>
+        <Component {...pageProps} />
+      </SessionProvider>
     </Layout>
+
   )
 }
