@@ -1,0 +1,18 @@
+Changements ou nouvelles Fonctionnalités à faire
+
+Affichage :
+
+- Onglet Accueil n'est pas visible à la verticale sur Smartphone
+
+
+
+Fonctionnel : 
+
+- Mood Triste / Calme / Feel Good n'ont pas d'animes -> refaire l'algo des moods pour qu'1 mood = 1 genre
+- Enlever "Genre" dans Explorer ou affcher les genres présents en BDD et les utiliser 
+- Refaire le fonctionnel et l'algo de la page "Favoris"
+- Ajouter la suppression des animes "vus" et "Favoris"
+- Graphique pour les moods persos dans les stats 
+- Faire d'autres quiz ou d'autres jeux
+- Modifier la messagebox pour les animes "vus" et "Favoris"
+- Affcher la carte de l'anime avec plusieurs infos 
