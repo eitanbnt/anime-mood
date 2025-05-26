@@ -14,5 +14,8 @@ Fonctionnel :
 - Ajouter la suppression des animes "vus" et "Favoris"
 - Graphique pour les moods persos dans les stats 
 - Faire d'autres quiz ou d'autres jeux
-- Modifier la messagebox pour les animes "vus" et "Favoris"
+- Modifier la messagebox pour les animes "vus" et "Favoris" ✅
 - Affcher la carte de l'anime avec plusieurs infos 
+- Rajouter un message lorsque l'anime est déjà vu ou en favoris
+
+

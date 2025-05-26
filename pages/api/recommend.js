@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import getMoodsForGenres from './mood'; // Importation de la fonction depuis mood.js
+
 const prisma = new PrismaClient();
 
 // 🔁 Pondération des préférences utilisateur (genres aimés)
@@ -7,6 +9,18 @@ async function getUserPreferences(userId) {
     where: { userId },
     select: { genres: true },
   });
+
+  const moodsToCheck = ["Triste", "Calme", "Feel-good"];
+
+const moodEntries = await prisma.mood.findMany({
+  where: {
+    mood: {
+      in: moodsToCheck
+    }
+  }
+});
+
+console.log(moodEntries);
 
   const genreCount = {};
 
@@ -33,7 +47,7 @@ export default async function handler(req, res) {
   try {
     const genrePrefs = await getUserPreferences(userId);
 
-    const moodEntries = await prisma.moodCache.findMany({
+    const moodEntries = await prisma.mood.findMany({
       where: { mood: cleanMood },
     });
 
@@ -44,15 +58,20 @@ export default async function handler(req, res) {
 
     const seenIds = new Set(seen.map((r) => r.animeId));
 
+    const moodsByGenre = await getMoodsForGenres(); // Récupérer les moods pour chaque genre
     const unseen = moodEntries
       .filter((a) => !seenIds.has(a.animeId))
       .map((anime) => {
         const genreList =
           typeof anime.genres === "string" ? anime.genres.split(",") : [];
-        const score = genreList.reduce(
-          (sum, g) => sum + (genrePrefs[g.trim()] || 0),
-          0
-        );
+
+        // Calculer le score en fonction des genres et des moods
+        const score = genreList.reduce((sum, g) => {
+          const moods = moodsByGenre[g.trim()] || [];
+          // Ajouter au score si le mood actuel est dans les moods du genre
+          return sum + (moods.includes(cleanMood) ? (genrePrefs[g.trim()] || 0) : 0);
+        }, 0);
+
         return { ...anime, score };
       });
 

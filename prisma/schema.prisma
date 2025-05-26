@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model Genre {
   id     Int          @id @default(autoincrement())
   name   String       @unique
@@ -46,6 +47,9 @@ model AnimeCache {
   score        String?
   moodCache    MoodCache?
   createdAt    DateTime   @default(now())
+  moods        Mood[]     @relation("AnimeMoods")
+
+  Mood Mood?
 }
 
 model AnimeSeen {
@@ -69,6 +73,14 @@ model MoodCache {
   source       String?
   episodes     String?
   score        String?
-  mood         String
-  genres       String? // ← ✅ Ajoute cette ligne
+  moods        Mood[]     @relation("AnimeMoods") // Assure que Mood est bien référencé
+}
+
+model Mood {
+  id          Int          @id @default(autoincrement())
+  mood        String       
+  animeId     Int          
+  anime       AnimeCache   @relation(fields: [animeId], references: [animeId])
+  animeCaches AnimeCache[] @relation("AnimeMoods") // Ajout de la relation inverse
+  moodCaches  MoodCache[]  @relation("AnimeMoods")
 }

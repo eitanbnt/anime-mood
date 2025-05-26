@@ -1,6 +1,7 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 
+// 🎨 Dictionnaire pour couleurs + emojis par mood
 const moods = {
   Heureux: "😄",
   Triste: "😢",
@@ -18,6 +19,7 @@ export default function HomePage() {
   const router = useRouter()
   const [username, setUsername] = useState("")
 
+  // Vérification de l'authentification
   useEffect(() => {
     const saved = localStorage.getItem("animeUsername")
     if (!saved) {
